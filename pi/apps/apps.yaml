@@ -1,0 +1,15 @@
+mobilcz_trnila:
+  module: mobilcz 
+  class: MobilCZ
+  username: trnila
+  password: !secret mobilcz_trnila
+mobilcz_grandma:
+  module: mobilcz 
+  class: MobilCZ
+  username: !secret mobilcz_grandma_username
+  password: !secret mobilcz_grandma
+cache_lunch:
+  module: http_fetch
+  class: HttpFetch
+  url: https://trnila.eu/lunch
+  when: 07:00:00

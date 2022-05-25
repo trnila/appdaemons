@@ -1,0 +1,16 @@
+edenred:
+  module: edenred 
+  class: Edenred
+  username: !secret edenred_username
+  password: !secret edenred_password
+
+headphones_battery:
+  module: upower
+  class: UPower
+  path: "/org/freedesktop/UPower/devices/headset_dev_11_11_22_34_FB_B9"
+
+
+notebook_battery:
+  module: upower
+  class: UPower
+  path: /org/freedesktop/UPower/devices/battery_BAT0

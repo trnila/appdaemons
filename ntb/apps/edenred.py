@@ -1,14 +1,5 @@
 import re
 import os
-import requests
-import json
-import dbus
-import pickle
-import datetime
-import dbus
-import threading
-from gi.repository import GObject
-from dbus.mainloop.glib import DBusGMainLoop
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
@@ -16,7 +7,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 import time
-import hassapi as hass
 
 def get_balance(username, password):
     chrome_options = Options()
@@ -55,40 +45,48 @@ def get_balance(username, password):
     else:
         return -1
 
-class Edenred(hass.Hass):
-    def initialize(self):
-        DBusGMainLoop(set_as_default=True)
-        bus = dbus.SystemBus()
-        bus.add_signal_receiver(self.fetch, 'PrepareForSleep', 'org.freedesktop.login1.Manager', 'org.freedesktop.login1')
+if __name__ != "__main__":
+    import hassapi as hass
+    import datetime
+    import dbus
+    import threading
+    from gi.repository import GObject
+    from dbus.mainloop.glib import DBusGMainLoop
 
-        def thread_fn():
-            loop = GObject.MainLoop()
-            loop.run()
-        self.t = threading.Thread(target=thread_fn)
-        self.t.start()
+    class Edenred(hass.Hass):
+        def initialize(self):
+            DBusGMainLoop(set_as_default=True)
+            bus = dbus.SystemBus()
+            bus.add_signal_receiver(self.fetch, 'PrepareForSleep', 'org.freedesktop.login1.Manager', 'org.freedesktop.login1')
+
+            def thread_fn():
+                loop = GObject.MainLoop()
+                loop.run()
+            self.t = threading.Thread(target=thread_fn)
+            self.t.start()
 
 
 
-    def fetch(self, sleeping):
-        if sleeping:
-            return
+        def fetch(self, sleeping):
+            if sleeping:
+                return
 
-        if datetime.datetime.now().hour < 10:
-            self.log("Too early")
-            return
+            if datetime.datetime.now().hour < 10:
+                self.log("Too early")
+                return
 
-        path = os.path.join("/tmp", f".edenred.{datetime.datetime.now().date()}")
-        if os.path.exists(path):
-            self.log("Already fetched today")
-            return
+            path = os.path.join("/tmp", f".edenred.{datetime.datetime.now().date()}")
+            if os.path.exists(path):
+                self.log("Already fetched today")
+                return
 
-        with open(path, "w") as f:
-            pass
+            with open(path, "w") as f:
+                pass
 
-        self.log("triggered")
+            self.log("triggered")
 
-        time.sleep(60)
+            time.sleep(60)
 
-        balance = get_balance(self.args['username'], self.args['password'])
-        self.notify(f"{self.name} {balance}")
-        self.set_state(f"sensor.{self.name}", state=balance, device_class="monetary", unit_of_measurement="CZK")
+            balance = get_balance(self.args['username'], self.args['password'])
+            self.notify(f"{self.name} {balance}")
+            self.set_state(f"sensor.{self.name}", state=balance, device_class="monetary", unit_of_measurement="CZK")

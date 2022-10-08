@@ -4,8 +4,10 @@ import requests
 class HttpFetch(hass.Hass):
     def initialize(self):
         self.run_daily(self.fetch, self.args['when'])
+        #self.fetch({})
 
     def fetch(self, kwargs):
-        res = requests.get(self.args['url'])
+        fn = getattr(requests, self.args.get('method', 'get').lower())
+        res = fn(self.args['url'])
         print(res.text)
 

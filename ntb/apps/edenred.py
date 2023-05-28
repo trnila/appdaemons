@@ -45,7 +45,14 @@ def get_balance(username, password):
     else:
         return -1
 
-if __name__ != "__main__":
+if __name__ == "__main__":
+    import yaml
+    from pathlib import Path
+    with open(Path(__file__).parent.parent / "secrets.yaml") as f:
+        c = yaml.safe_load(f)
+    balance = get_balance(c['edenred_username'], c['edenred_password'])
+    print(balance)
+else:
     import hassapi as hass
     import datetime
     import dbus
